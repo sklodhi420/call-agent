@@ -521,9 +521,9 @@ export default function AgentPage() {
             const { width, height } = canvas;
             ctx.clearRect(0, 0, width, height);
 
-            let numBars = Math.floor(width / 12);
-            if (numBars > 45) numBars = 45;
-            if (numBars < 15) numBars = 15;
+            let numBars = Math.floor(width / 10);
+            if (numBars > 80) numBars = 80;
+            if (numBars < 30) numBars = 30;
             if (numBars % 2 === 0) numBars += 1;
 
             const rawAgentVol = volumeRef.current;
@@ -544,15 +544,22 @@ export default function AgentPage() {
             const barGap = barWidth * 1.5;
             const totalWidth = numBars * barWidth + (numBars - 1) * barGap;
             const startX = (width - totalWidth) / 2;
-            const maxBarHeight = height * 0.8;
+            const maxBarHeight = height * 0.4;
             const baseHeight = barWidth;
 
             for (let i = 0; i < numBars; i++) {
-                const distFromCenter = Math.abs(i - Math.floor(numBars / 2)) / Math.floor(numBars / 2);
+                const distFromCenter = Math.abs(i - Math.floor(numBars / 2)) / (numBars / 2);
                 const curve = Math.max(0, 1 - Math.pow(distFromCenter, 1.4));
+                
+                // Add a subtle idle wave so it's not a flat line even when silent
+                const idleOsc = Math.sin(phase * 0.5 + i * 0.3) * 4;
                 const noise = Math.sin(phase + i * 0.5) * 0.5 + 0.5;
-                const jumpHeight = isConn ? smoothVol * maxBarHeight * curve * (0.4 + 0.6 * noise) : 0;
-                const barHeight = baseHeight + jumpHeight;
+                
+                const jumpHeight = isConn 
+                    ? (idleOsc + (smoothVol * maxBarHeight * (0.5 + 0.5 * noise))) * curve 
+                    : 0;
+                    
+                const barHeight = Math.max(baseHeight, baseHeight + jumpHeight);
                 const x = startX + i * (barWidth + barGap);
                 const y = centerY - barHeight / 2;
 
@@ -562,7 +569,7 @@ export default function AgentPage() {
                 } else {
                     ctx.rect(x, y, barWidth, barHeight);
                 }
-                ctx.fillStyle = `rgba(52, 199, 89, ${0.4 + 0.6 * curve})`;
+                ctx.fillStyle = `rgba(16, 185, 129, ${0.3 + 0.7 * curve})`;
                 ctx.fill();
             }
 
@@ -624,7 +631,7 @@ export default function AgentPage() {
                 },
                 voice: { provider: 'vapi', voiceId: 'Elliot' },
                 transcriber: { provider: 'deepgram', model: 'nova-2', language: 'en-US' },
-                firstMessage: "Hey there! I'm Mark from GenITeam. We help people turn their game ideas into real, playable games. I'd love to learn a little about you and your project today. To start, what's your first name?",
+                firstMessage: "Hey, thanks for calling GenITeam. You've reached Jose — what made you reach out today?",
                 endCallMessage: "It was great speaking with you! We'll be in touch soon. Take care and goodbye!",
                 endCallPhrases: ['goodbye', 'bye', 'end call', 'hang up', "that's all", 'talk later'],
                 maxDurationSeconds: 1800,
@@ -643,7 +650,12 @@ export default function AgentPage() {
     };
 
     return (
-        <div className="flex flex-col flex-1 w-full h-full bg-[#0a0a0a] relative overflow-hidden font-sans">
+        <div className="flex flex-col w-full h-screen bg-[#060606] relative overflow-hidden font-sans selection:bg-emerald-500/30">
+            {/* Glossy Background Accents */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-emerald-600/5 blur-[120px] rounded-full"></div>
+                <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/5 blur-[120px] rounded-full"></div>
+            </div>
 
             {/* Top bar */}
             <div className="w-full flex justify-between items-center px-6 py-5 z-20 relative">
@@ -676,57 +688,72 @@ export default function AgentPage() {
             )}
 
             {/* Avatar area */}
-            <div className="flex-1 w-full relative z-10 flex flex-col items-center justify-center pb-24 sm:pb-32">
+            <div className="flex-1 w-full relative z-10 flex flex-col items-center justify-center p-6 sm:p-12 mb-12">
                 
                 {/* Mute Warning Notification */}
-                <div className={`absolute top-0 flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-full shadow-lg transition-all duration-500 transform ${showMuteWarning ? 'translate-y-0 opacity-100 scale-100' : '-translate-y-10 opacity-0 scale-90'}`}>
-                    <MicOff size={16} />
-                    <span className="text-sm font-semibold whitespace-nowrap">You're muted</span>
+                <div className={`absolute top-0 flex items-center gap-3 bg-red-500/90 backdrop-blur-md text-white px-6 py-3 rounded-2xl shadow-2xl transition-all duration-500 transform ${showMuteWarning ? 'translate-y-8 opacity-100 scale-100' : '-translate-y-10 opacity-0 scale-90'}`}>
+                    <MicOff size={18} className="animate-pulse" />
+                    <span className="text-sm font-bold tracking-tight">Your microphone is muted while you're speaking</span>
                 </div>
 
                 <div
-                    className={`relative w-40 h-40 sm:w-56 sm:h-56 mt-4 mb-4 rounded-full overflow-hidden border-4 transition-all duration-300 ${
+                    className={`relative w-48 h-48 sm:w-64 sm:h-64 rounded-full p-1.5 transition-all duration-700 ease-out ${
                         connected
-                            ? 'border-[#34c759] shadow-[0_0_50px_rgba(52,199,89,0.4)] scale-100'
-                            : 'border-white/10 shadow-xl scale-95 opacity-80'
+                            ? 'bg-gradient-to-tr from-emerald-500 to-emerald-400 shadow-[0_0_80px_-10px_rgba(16,185,129,0.3)]'
+                            : 'bg-white/5 border border-white/10'
                     }`}
                 >
-                    <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center">
-                        <span className="text-6xl">🤖</span>
+                    <div className="w-full h-full bg-[#0d0d0d] rounded-full flex items-center justify-center overflow-hidden relative group">
+                        <span className="text-7xl group-hover:scale-110 transition-transform duration-500">🤖</span>
+                        
+                        {/* Status Overlay */}
+                        <div className={`absolute bottom-0 inset-x-0 h-1/4 bg-black/60 backdrop-blur-md flex items-center justify-center transition-all duration-500 ${connected ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full'}`}>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">Connected</span>
+                        </div>
                     </div>
 
-                    {/* Pulsing ring when AI speaking */}
-                    <div className={`absolute inset-0 rounded-full border-4 border-[#34c759] transition-opacity duration-300 ${
-                        assistantIsSpeaking ? 'animate-[ping_1.5s_cubic-bezier(0,0,0.2,1)_infinite] opacity-50' : 'opacity-0'
-                    }`} />
+                    {/* Ring animation */}
+                    {assistantIsSpeaking && (
+                        <div className="absolute inset-0 rounded-full border-[6px] border-emerald-500/30 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
+                    )}
                 </div>
 
-                {!connected && !connecting && (
-                    <p className="text-white/40 text-base font-light mt-4">Tap the green button to start</p>
-                )}
-                {connecting && (
-                    <p className="text-blue-400 text-base font-light mt-4 animate-pulse">Setting up call...</p>
-                )}
-                {connected && (
-                    <p className="text-emerald-500 text-base font-medium mt-4">
-                        {assistantIsSpeaking ? 'Speaking...' : 'Listening...'}
-                    </p>
-                )}
+                <div className="mt-10 text-center animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                    {!connected && !connecting && (
+                        <>
+                            <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">Mark AI Assistant</h2>
+                            <p className="text-gray-500 text-sm font-medium tracking-wide">Tap the phone icon below to begin your session</p>
+                        </>
+                    )}
+                    {connecting && (
+                        <>
+                            <h2 className="text-2xl font-bold text-blue-400 mb-2 tracking-tight">Initializing Mark...</h2>
+                            <p className="text-blue-500/40 text-sm font-black uppercase tracking-[0.3em] animate-pulse">Establishing secure link</p>
+                        </>
+                    )}
+                    {connected && (
+                        <>
+                            <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">Session in Progress</h2>
+                            <p className={`text-sm font-black uppercase tracking-[0.3em] transition-colors duration-300 ${assistantIsSpeaking ? 'text-emerald-400 animate-pulse' : 'text-gray-500'}`}>
+                                {assistantIsSpeaking ? 'Mark is Speaking' : 'Listening...'}
+                            </p>
+                        </>
+                    )}
+                </div>
             </div>
 
             {/* Wave visualizer canvas */}
-            <canvas ref={canvasRef} className="absolute bottom-0 left-0 w-full h-[55%] pointer-events-none z-0 opacity-100" />
+            <canvas ref={canvasRef} className="absolute bottom-0 left-0 w-full h-[30%] pointer-events-none z-0 opacity-100" />
 
             {/* Bottom controls */}
             <div className="w-full pb-10 pt-6 flex justify-center items-center gap-6 z-20 relative">
                 <button
                     onClick={connected ? toggleMute : undefined}
                     disabled={!connected}
-                    className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-colors shadow-lg ${
-                        !connected
+                    className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-colors shadow-lg ${!connected
                             ? 'bg-[#1c1c1e] opacity-40 cursor-not-allowed'
                             : 'bg-[#1c1c1e] hover:bg-[#2c2c2e] cursor-pointer'
-                    }`}
+                        }`}
                     title={isMuted ? 'Unmute' : 'Mute'}
                 >
                     {isMuted ? <MicOff size={24} className="text-red-500" /> : <Mic size={24} className="text-white" />}

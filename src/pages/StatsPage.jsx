@@ -20,7 +20,8 @@ import {
   XCircle,
   HelpCircle,
   Clock3,
-  PhoneOff
+  PhoneOff,
+  LogOut
 } from "lucide-react";
 
 // Vapi environment variables
@@ -159,7 +160,7 @@ const CustomAudioPlayer = ({ src }) => {
 };
 
 // --- Main StatsPage Component ---
-export default function StatsPage() {
+export default function StatsPage({ onLogout }) {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -289,6 +290,13 @@ export default function StatsPage() {
             >
               <RefreshCcw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
               {loading ? 'Refreshing...' : 'Refresh Logs'}
+            </button>
+            <button
+              onClick={onLogout}
+              className="flex items-center gap-2.5 px-6 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-xl transition-all border border-red-500/20 active:scale-95 font-semibold"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout Admin
             </button>
           </div>
         </div>
@@ -447,7 +455,7 @@ export default function StatsPage() {
                       {/* Expanded Details Section */}
                       {expandedRow === log.id && (
                         <tr className="bg-gray-950/40">
-                          <td colSpan="5" className="px-10 py-10 border-t border-blue-500/10 border-b border-blue-500/10">
+                          <td colSpan="6" className="px-10 py-10 border-t border-blue-500/10 border-b border-blue-500/10">
                             <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
 
                               {/* Analysis & Controls (12 cols) */}
