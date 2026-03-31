@@ -550,15 +550,15 @@ export default function AgentPage() {
             for (let i = 0; i < numBars; i++) {
                 const distFromCenter = Math.abs(i - Math.floor(numBars / 2)) / (numBars / 2);
                 const curve = Math.max(0, 1 - Math.pow(distFromCenter, 1.4));
-                
+
                 // Add a subtle idle wave so it's not a flat line even when silent
                 const idleOsc = Math.sin(phase * 0.5 + i * 0.3) * 4;
                 const noise = Math.sin(phase + i * 0.5) * 0.5 + 0.5;
-                
-                const jumpHeight = isConn 
-                    ? (idleOsc + (smoothVol * maxBarHeight * (0.5 + 0.5 * noise))) * curve 
+
+                const jumpHeight = isConn
+                    ? (idleOsc + (smoothVol * maxBarHeight * (0.5 + 0.5 * noise))) * curve
                     : 0;
-                    
+
                 const barHeight = Math.max(baseHeight, baseHeight + jumpHeight);
                 const x = startX + i * (barWidth + barGap);
                 const y = centerY - barHeight / 2;
@@ -689,7 +689,7 @@ export default function AgentPage() {
 
             {/* Avatar area */}
             <div className="flex-1 w-full relative z-10 flex flex-col items-center justify-center p-6 sm:p-12 mb-12">
-                
+
                 {/* Mute Warning Notification */}
                 <div className={`absolute top-0 flex items-center gap-3 bg-red-500/90 backdrop-blur-md text-white px-6 py-3 rounded-2xl shadow-2xl transition-all duration-500 transform ${showMuteWarning ? 'translate-y-8 opacity-100 scale-100' : '-translate-y-10 opacity-0 scale-90'}`}>
                     <MicOff size={18} className="animate-pulse" />
@@ -697,15 +697,14 @@ export default function AgentPage() {
                 </div>
 
                 <div
-                    className={`relative w-48 h-48 sm:w-64 sm:h-64 rounded-full p-1.5 transition-all duration-700 ease-out ${
-                        connected
-                            ? 'bg-gradient-to-tr from-emerald-500 to-emerald-400 shadow-[0_0_80px_-10px_rgba(16,185,129,0.3)]'
-                            : 'bg-white/5 border border-white/10'
-                    }`}
+                    className={`relative w-48 h-48 sm:w-64 sm:h-64 rounded-full p-1.5 transition-all duration-700 ease-out ${connected
+                        ? 'bg-gradient-to-tr from-emerald-500 to-emerald-400 shadow-[0_0_80px_-10px_rgba(16,185,129,0.3)]'
+                        : 'bg-white/5 border border-white/10'
+                        }`}
                 >
                     <div className="w-full h-full bg-[#0d0d0d] rounded-full flex items-center justify-center overflow-hidden relative group">
                         <span className="text-7xl group-hover:scale-110 transition-transform duration-500">🤖</span>
-                        
+
                         {/* Status Overlay */}
                         <div className={`absolute bottom-0 inset-x-0 h-1/4 bg-black/60 backdrop-blur-md flex items-center justify-center transition-all duration-500 ${connected ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full'}`}>
                             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">Connected</span>
@@ -721,13 +720,13 @@ export default function AgentPage() {
                 <div className="mt-10 text-center animate-in fade-in slide-in-from-bottom-4 duration-1000">
                     {!connected && !connecting && (
                         <>
-                            <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">Mark AI Assistant</h2>
+                            <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">Jose AI Assistant</h2>
                             <p className="text-gray-500 text-sm font-medium tracking-wide">Tap the phone icon below to begin your session</p>
                         </>
                     )}
                     {connecting && (
                         <>
-                            <h2 className="text-2xl font-bold text-blue-400 mb-2 tracking-tight">Initializing Mark...</h2>
+                            <h2 className="text-2xl font-bold text-blue-400 mb-2 tracking-tight">Initializing Jose...</h2>
                             <p className="text-blue-500/40 text-sm font-black uppercase tracking-[0.3em] animate-pulse">Establishing secure link</p>
                         </>
                     )}
@@ -735,7 +734,7 @@ export default function AgentPage() {
                         <>
                             <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">Session in Progress</h2>
                             <p className={`text-sm font-black uppercase tracking-[0.3em] transition-colors duration-300 ${assistantIsSpeaking ? 'text-emerald-400 animate-pulse' : 'text-gray-500'}`}>
-                                {assistantIsSpeaking ? 'Mark is Speaking' : 'Listening...'}
+                                {assistantIsSpeaking ? 'Jose is Speaking' : 'Listening...'}
                             </p>
                         </>
                     )}
@@ -751,8 +750,8 @@ export default function AgentPage() {
                     onClick={connected ? toggleMute : undefined}
                     disabled={!connected}
                     className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-colors shadow-lg ${!connected
-                            ? 'bg-[#1c1c1e] opacity-40 cursor-not-allowed'
-                            : 'bg-[#1c1c1e] hover:bg-[#2c2c2e] cursor-pointer'
+                        ? 'bg-[#1c1c1e] opacity-40 cursor-not-allowed'
+                        : 'bg-[#1c1c1e] hover:bg-[#2c2c2e] cursor-pointer'
                         }`}
                     title={isMuted ? 'Unmute' : 'Mute'}
                 >
