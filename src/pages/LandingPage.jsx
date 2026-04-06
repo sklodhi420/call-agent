@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, ArrowRight, ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { trackGoogleSheetEvent } from '../lib/googleSheetsTracker';
 
 const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTLOWQmmf6Hp0OQm48zJRSkE39EGh2z1p9yl_8zlU541rYO5FKeg8muS2yvHDJxGkuriJtnizCnJKxY/pub?output=csv';
 
@@ -43,6 +44,7 @@ export default function LandingPage({ onValidationSuccess }) {
       }
 
       if (isEmailAuthorized) {
+        trackGoogleSheetEvent('Login', normalizedEmail);
         onValidationSuccess(normalizedEmail);
       } else {
         setError('Unauthorized access. Your email is not on the approved list.');

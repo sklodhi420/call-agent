@@ -43,6 +43,7 @@ export default function App() {
   const handleValidationSuccess = (email) => {
     setIsEmailValidated(true);
     sessionStorage.setItem('user_email_validated', 'true');
+    sessionStorage.setItem('user_email', email); // Added for analytics tracking
   };
 
   return (
