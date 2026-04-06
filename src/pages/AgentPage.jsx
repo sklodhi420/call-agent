@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import Vapi from '@vapi-ai/web';
 import { Sparkles, Mic, MicOff, X, Phone } from 'lucide-react';
 import analytics from '../lib/analytics';
+import { trackGoogleSheetEvent } from '../lib/googleSheetsTracker';
 
 const VAPI_PUBLIC_KEY = import.meta.env.VITE_VAPI_PUBLIC_KEY || '';
 const VAPI_TOOL_ID = import.meta.env.VITE_VAPI_TOOL_ID || '';
@@ -585,12 +586,32 @@ export default function AgentPage() {
 
     // VAPI events
     useEffect(() => {
+        let callLogged = false;
+
         vapi.on('call-start', () => {
             setConnecting(false);
             setConnected(true);
             setError('');
             analytics.track('CallAgent_CallStarted');
+            
+            // Fire immediately so the sheet updates instantly
+            const email = sessionStorage.getItem('user_email') || 'unknown';
+            trackGoogleSheetEvent('CallStarted', email, 'Fetching ID...');
+            callLogged = false;
         });
+
+        vapi.on('message', (message) => {
+            if (!callLogged) {
+                // Once we finally get a message with the real call ID, update the sheet with it
+                const callId = message?.call?.id || (message?.message?.call && message?.message?.call?.id);
+                if (callId && typeof callId === 'string' && callId.length > 5) {
+                    const email = sessionStorage.getItem('user_email') || 'unknown';
+                    trackGoogleSheetEvent('CallStarted', email, callId);
+                    callLogged = true;
+                }
+            }
+        });
+
         vapi.on('call-end', () => {
             setConnecting(false);
             setConnected(false);
