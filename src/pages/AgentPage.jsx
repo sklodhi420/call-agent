@@ -643,7 +643,14 @@ export default function AgentPage() {
         setConnecting(true);
         setError('');
         try {
+            const userEmail = sessionStorage.getItem('user_email') || 'anonymous_user';
+
             await vapi.start({
+                name: `Call with ${userEmail}`,
+                metadata: { 
+                    email: userEmail,
+                    appId: 'call-agent-app' // Unique tag used for filtering in the Admin Panel
+                },
                 model: {
                     provider: 'openai',
                     model: 'gpt-4o',
